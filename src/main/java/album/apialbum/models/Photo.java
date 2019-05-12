@@ -9,6 +9,7 @@ public class Photo {
     @Id
     private Integer id;
     private Integer albumId;
+    private Integer userId;
     private String title;
     private String url;
     private String thumbnailUrl;
@@ -16,12 +17,21 @@ public class Photo {
     public Photo() {
     }
 
-    public Photo(Integer id, Integer albumId, String title, String url, String thumbnailUrl) {
+    public Photo(Integer id, Integer albumId, Integer userId, String title, String url, String thumbnailUrl) {
         this.id = id;
         this.albumId = albumId;
+        this.userId = userId;
         this.title = title;
         this.url = url;
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public Integer getId() {

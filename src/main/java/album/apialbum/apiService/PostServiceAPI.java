@@ -16,9 +16,21 @@ public class PostServiceAPI {
     private static final String uri = "https://my-json-server.typicode.com/agustinservat/api-album/posts";
 
     public static List<Post> getPosts(){
+        List<Post> postList = makeGet("");
 
+        return postList;
+    }
+
+    public static List<Post> findByUserId(Integer userId){
+        String byUserId = "?userId=" + userId;
+        List<Post> postList = makeGet(byUserId);
+
+        return postList;
+    }
+
+    private static List<Post> makeGet(String extraUri){
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<Post>> rateResponse = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Post>>() {});
+        ResponseEntity<List<Post>> rateResponse = restTemplate.exchange(uri + extraUri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Post>>() {});
         List<Post> postList = rateResponse.getBody();
 
         return postList;

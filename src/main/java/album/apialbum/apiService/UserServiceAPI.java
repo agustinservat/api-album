@@ -16,10 +16,25 @@ public class UserServiceAPI {
 
     public static List<User> getUsers(){
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<User>> rateResponse = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<User>>() {});
-        List<User> users = rateResponse.getBody();
+        List<User> users = makeGet("");
 
         return users;
+    }
+
+    public static User findById(Integer id){
+        String byId = "?id=" + id;
+        List<User> userList = makeGet(byId);
+        if(userList.size() > 1){
+            //Error
+        }
+        return userList.get(0);
+    }
+
+    private static List<User> makeGet(String extraUri){
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<List<User>> rateResponse = restTemplate.exchange(uri + extraUri, HttpMethod.GET, null, new ParameterizedTypeReference<List<User>>() {});
+        List<User> userList = rateResponse.getBody();
+
+        return userList;
     }
 }

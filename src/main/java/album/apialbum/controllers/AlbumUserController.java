@@ -3,14 +3,11 @@ package album.apialbum.controllers;
 import album.apialbum.models.AlbumUser;
 import album.apialbum.services.AlbumUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,46 +19,50 @@ public class AlbumUserController {
     private AlbumUserService albumUserService;
 
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ResponseEntity<List<AlbumUser>> findAll(){
+    @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
+    public ResponseEntity<List<AlbumUser>> findPermissions(@RequestParam(name = "albumId", required = true) Integer albumId,
+                                                      @RequestParam(name = "readOnly", required = true) Boolean readOnly){
 
-        List<AlbumUser> result = albumUserService.getAlbumUsers();
+        List<AlbumUser> result = albumUserService.findPermissions(albumId, readOnly);
+        if(result.isEmpty()){
+            return new ResponseEntity<List<AlbumUser>>(result, HttpStatus.NOT_FOUND);
+        }
 
         return new ResponseEntity<List<AlbumUser>>(result, HttpStatus.OK);
     }
 
-    // TODO mejorar las respuestas de responseEntity
-    @RequestMapping(value = "/", method = RequestMethod.POST)
-    public ResponseEntity<AlbumUser> createAlbumUser(@RequestBody AlbumUser albumUser){
-
+    @RequestMapping(value = {"", "/"}, method = RequestMethod.POST)
+    public ResponseEntity<?> createAlbumUser(@RequestBody AlbumUser albumUser){
         try{
             AlbumUser newAlbumUser = albumUserService.saveAlbumUser(albumUser);
-            return new ResponseEntity<AlbumUser>(newAlbumUser, HttpStatus.CREATED);
+            if (newAlbumUser != null){
+                return new ResponseEntity<AlbumUser>(newAlbumUser, HttpStatus.CREATED);
+            }else{
+                return new ResponseEntity<String>("El album y/o el usuario al que quiere asignar permisos no existe.", HttpStatus.NOT_FOUND);
+            }
 
-        }catch (Exception e){
+        }catch (DataIntegrityViolationException e){
+            System.out.println(e.getMessage());
+            HttpHeaders httpHeaders = new HttpHeaders();
+            return new ResponseEntity<String>("Ya existe un permiso asociado al album ID: " + albumUser.getAlbumId() + " y el usuario con ID: " + albumUser.getUserId(), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch (Exception e){
             System.out.println(e.getMessage());
             HttpHeaders httpHeaders = new HttpHeaders();
             return new ResponseEntity<>(httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-
-
-    // TODO mejorar las respuestas de responseEntity
-    @RequestMapping(value = "/", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateAlbumUser(@RequestBody AlbumUser albumUserUpdate){
-        AlbumUser albumUser = albumUserService.findById(albumUserUpdate.getId());
-
-        if(albumUser == null){
-            return new ResponseEntity<String>("No se encontró el permiso asociado con ID" + albumUserUpdate.getId(), HttpStatus.NOT_FOUND);
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateAlbumUser(@PathVariable Integer id, @RequestBody AlbumUser albumUserUpdate){
+        if(!albumUserService.existsById(id)){
+            return new ResponseEntity<String>("No se encontró el permiso asociado con ID " + id, HttpStatus.NOT_FOUND);
         }
-
         try {
-            AlbumUser restul = albumUserService.updatePermissions(albumUserUpdate);
-            if (restul != null){
-                return new ResponseEntity<AlbumUser>(restul, HttpStatus.OK);
+            AlbumUser result = albumUserService.updatePermissions(id, albumUserUpdate);
+            if (result != null){
+                return new ResponseEntity<AlbumUser>(result, HttpStatus.OK);
             }else{
-                return new ResponseEntity<String>("Error", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<String>("El album y/o el usuario que quiere actualizar no existe.", HttpStatus.NOT_FOUND);
             }
         }catch (Exception e){
             return new ResponseEntity<String>("Error", HttpStatus.INTERNAL_SERVER_ERROR);

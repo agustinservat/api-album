@@ -17,6 +17,12 @@ public class AlbumUser {
     public AlbumUser() {
     }
 
+    public AlbumUser(Integer albumId, Integer userId, Boolean readOnly) {
+        this.albumId = albumId;
+        this.userId = userId;
+        this.readOnly = readOnly;
+    }
+
     public AlbumUser(Integer id, Integer albumId, Integer userId, Boolean readOnly) {
         this.id = id;
         this.albumId = albumId;

@@ -2,25 +2,24 @@ package album.apialbum.services;
 
 import album.apialbum.apiService.AlbumServiceAPI;
 import album.apialbum.models.Album;
-import album.apialbum.repositories.AlbumsRepository;
+import album.apialbum.repositories.AlbumRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class AlbumsService {
+public class AlbumService {
 
     @Autowired
-    private AlbumsRepository albumsRepository;
+    private AlbumRepository albumRepository;
 
 
     public List<Album> getAlbums(){
+        return AlbumServiceAPI.getAlbums();
+    }
 
-        List<Album> albumList = AlbumServiceAPI.getAlbums();
-
-        albumsRepository.saveAll(albumList);
-
-        return albumList;
+    public List<Album> findByUserId(Integer userId){
+        return AlbumServiceAPI.findByUserId(userId);
     }
 }
