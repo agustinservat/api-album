@@ -1,16 +1,13 @@
 package album.apialbum.apiService;
 
 import album.apialbum.models.Album;
-import album.apialbum.models.Photo;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,32 +45,10 @@ public class AlbumServiceAPI {
         List<Album> albumList = new ArrayList<Album>();
         try{
             ResponseEntity<List<Album>> rateResponse = restTemplate.exchange(uri + extraUri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Album>>() {});
-            restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
-                @Override public boolean hasError(ClientHttpResponse response)
-                        throws IOException {
-                    try {
-                        return super.hasError(response);
-                    } catch (Exception e) {
-                        System.out.println("Exception [" + e.getMessage() + "] occurred while trying to send the request" + e);
-                        return true;
-                    }
-                }
-
-                @Override public void handleError(ClientHttpResponse response)
-                        throws IOException {
-                    try {
-                        //Do your stuff
-                        super.handleError(response);
-                    } catch (Exception e) {
-                        System.out.println("Exception [" + e.getMessage() + "] occurred while trying to send the request" + e);
-                        throw e;
-                    }
-                }
-            });
-             albumList = rateResponse.getBody();
-        }catch (Exception e){
-            System.out.println("Exception [" + e.getMessage() + "] occurred while trying to send the request" + e);
-//            throw e;
+            albumList = rateResponse.getBody();
+        }catch (HttpClientErrorException e) {
+            System.out.println(e.getStatusCode());
+            System.out.println(e.getResponseBodyAsString());
         }
 
         return albumList;

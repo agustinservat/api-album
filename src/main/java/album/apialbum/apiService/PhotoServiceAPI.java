@@ -5,8 +5,10 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,9 +38,15 @@ public class PhotoServiceAPI {
 
     private static List<Photo> makeGet(String extraUri){
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<Photo>> rateResponse = restTemplate.exchange(uri + extraUri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Photo>>() {});
-        List<Photo> photos = rateResponse.getBody();
+        List<Photo> photoList = new ArrayList<Photo>();
+        try {
+            ResponseEntity<List<Photo>> rateResponse = restTemplate.exchange(uri + extraUri, HttpMethod.GET, null, new ParameterizedTypeReference<List<Photo>>() {});
+            photoList = rateResponse.getBody();
+        }catch (HttpClientErrorException e) {
+            System.out.println(e.getStatusCode());
+            System.out.println(e.getResponseBodyAsString());
+        }
 
-        return photos;
+        return photoList;
     }
 }
