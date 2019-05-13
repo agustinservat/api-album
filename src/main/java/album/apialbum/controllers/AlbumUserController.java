@@ -58,6 +58,9 @@ public class AlbumUserController {
         if(!albumUserService.existsById(id)){
             return new ResponseEntity<String>("No se encontró el permiso asociado con ID " + id, HttpStatus.NOT_FOUND);
         }
+        if(albumUserUpdate.getReadOnly() == null){
+            return new ResponseEntity<String>("No se encuentra el campo readOnly", HttpStatus.BAD_REQUEST);
+        }
         try {
             AlbumUser result = albumUserService.updatePermissions(id, albumUserUpdate);
             if (result != null){

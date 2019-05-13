@@ -71,15 +71,8 @@ public class AlbumUserService {
         if(albumUserToUpdate == null){
             return null;
         }
-        //Si el album y el usuario existe en el servicio externo
-        Album album = AlbumServiceAPI.findById(albumUser.getAlbumId());
-        User user = UserServiceAPI.findById(albumUser.getUserId());
-        if(album != null && user != null){
-            albumUserToUpdate.setReadOnly(albumUser.getReadOnly());
-            return albumUserRepository.save(albumUserToUpdate);
-        }else{
-            return null;
-        }
+        albumUserToUpdate.setReadOnly(albumUser.getReadOnly());
+        return albumUserRepository.save(albumUserToUpdate);
     }
 
     public void deleteAlbumUser(Integer id){
