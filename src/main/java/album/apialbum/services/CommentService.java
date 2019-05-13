@@ -22,4 +22,8 @@ public class CommentService {
     public List<Comment> findByName(String name){
         return CommentServiceAPI.findByName(name);
     }
+
+    public List<Comment> findByUserId(Integer userId){
+        return CommentServiceAPI.findByUserId(userId);
+    }
 }

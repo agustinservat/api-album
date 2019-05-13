@@ -1,6 +1,7 @@
 package album.apialbum.controllers;
 
 import album.apialbum.models.AlbumUser;
+import album.apialbum.models.User;
 import album.apialbum.services.AlbumUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,15 +21,15 @@ public class AlbumUserController {
 
 
     @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
-    public ResponseEntity<List<AlbumUser>> findPermissions(@RequestParam(name = "albumId", required = true) Integer albumId,
+    public ResponseEntity<List<User>> findPermissions(@RequestParam(name = "albumId", required = true) Integer albumId,
                                                       @RequestParam(name = "readOnly", required = true) Boolean readOnly){
 
-        List<AlbumUser> result = albumUserService.findPermissions(albumId, readOnly);
+        List<User> result = albumUserService.findUsersByPermissions(albumId, readOnly);
         if(result.isEmpty()){
-            return new ResponseEntity<List<AlbumUser>>(result, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<List<User>>(result, HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<List<AlbumUser>>(result, HttpStatus.OK);
+        return new ResponseEntity<List<User>>(result, HttpStatus.OK);
     }
 
     @RequestMapping(value = {"", "/"}, method = RequestMethod.POST)
@@ -67,6 +68,33 @@ public class AlbumUserController {
         }catch (Exception e){
             return new ResponseEntity<String>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
 
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteAlbumUser(@PathVariable Integer id){
+        if(!albumUserService.existsById(id)){
+            return new ResponseEntity<String>("No se encontró el permiso asociado con ID " + id, HttpStatus.NOT_FOUND);
+        }
+        try {
+            albumUserService.deleteAlbumUser(id);
+            return new ResponseEntity<String>("El permiso se ha eliminado correctamente", HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<String>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/album/{albumId}/user/{userId}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteAlbumUser(@PathVariable Integer albumId, @PathVariable Integer userId){
+
+        AlbumUser albumUser = albumUserService.findByAlbumUser(albumId, userId);
+        if(albumUser == null){
+            return new ResponseEntity<String>("No se encontró el permiso asociado con del album ID " + albumId + " user ID: " + userId, HttpStatus.NOT_FOUND);
+        }
+        try {
+            albumUserService.deleteAlbumUser(albumUser);
+            return new ResponseEntity<String>("El permiso se ha eliminado correctamente", HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<String>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

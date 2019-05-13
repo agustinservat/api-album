@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,6 +18,17 @@ public class AlbumUserService {
 
     @Autowired
     private AlbumUserRepository albumUserRepository;
+    @Autowired
+    private UserService userService;
+
+    public List<User> findUsersByPermissions(Integer albumId, Boolean readOnly){
+        List<AlbumUser> albumUserList = findPermissions(albumId, readOnly);
+        List<User> result = new ArrayList<User>();
+        for(AlbumUser albumUser : albumUserList){
+            result.add(userService.findById(albumUser.getUserId()));
+        }
+        return result;
+    }
 
     public List<AlbumUser> findPermissions(Integer albumId, Boolean readOnly){
         Album album = AlbumServiceAPI.findById(albumId);
@@ -41,9 +53,7 @@ public class AlbumUserService {
             }catch (DataIntegrityViolationException e){
                 throw e;
             }
-
         }else{
-
             return null;
         }
     }
@@ -70,5 +80,17 @@ public class AlbumUserService {
         }else{
             return null;
         }
+    }
+
+    public void deleteAlbumUser(Integer id){
+        albumUserRepository.deleteById(id);
+    }
+
+    public void deleteAlbumUser(AlbumUser albumUser){
+        albumUserRepository.delete(albumUser);
+    }
+
+    public AlbumUser findByAlbumUser(Integer albumId, Integer userId){
+        return albumUserRepository.findByAlbumIdAndUserId(albumId, userId);
     }
 }

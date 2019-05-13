@@ -26,10 +26,10 @@ public class UserServiceAPI {
     public static User findById(Integer id){
         String byId = "?id=" + id;
         List<User> userList = makeGet(byId);
-        if(userList.size() > 1){
-            //Error
+        if(userList.size() == 1){
+            return userList.get(0);
         }
-        return userList.get(0);
+        return null;
     }
 
     private static List<User> makeGet(String extraUri){

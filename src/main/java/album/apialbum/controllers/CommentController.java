@@ -21,11 +21,14 @@ public class CommentController {
 
 
     @RequestMapping(value = "/comments", method = RequestMethod.GET)
-    public ResponseEntity<List<Comment>> findAll(@RequestParam(name = "name", required = false) String name){
+    public ResponseEntity<List<Comment>> findAll(@RequestParam(name = "name", required = false) String name,
+                                                 @RequestParam(name = "userId", required = false) Integer userId){
 
         List<Comment> result = new ArrayList<Comment>();
         if(name != null){
             result = commentService.findByName(name);
+        }else if(userId != null){
+            result = commentService.findByUserId(userId);
         }else{
             result = commentService.getComments();
         }

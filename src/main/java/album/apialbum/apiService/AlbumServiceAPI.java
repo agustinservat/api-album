@@ -33,11 +33,10 @@ public class AlbumServiceAPI {
     public static Album findById(Integer id){
         String byId = "?id=" + id;
         List<Album> albumList = makeGet(byId);
-        if(albumList.size() > 1){
-            //Error
+        if(albumList.size() == 1){
+            return albumList.get(0);
         }
-
-        return albumList.get(0);
+        return null;
     }
 
     private static List<Album> makeGet(String extraUri){
